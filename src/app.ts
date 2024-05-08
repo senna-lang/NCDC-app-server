@@ -5,7 +5,6 @@ import { TextContent, TextDetail, TextList } from './types';
 import cors from 'cors';
 
 const app: Express = express();
-const port = 3001;
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
@@ -97,4 +96,4 @@ app.delete(
   }
 );
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+module.exports = app
