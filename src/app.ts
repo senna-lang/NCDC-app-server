@@ -39,6 +39,9 @@ app.get(
           body: true,
         },
       });
+      if (!textDetail) {
+        throw new Error();
+      }
       return res.status(200).json(textDetail);
     } catch (e) {
       return res.status(400).json(e);
@@ -96,4 +99,4 @@ app.delete(
   }
 );
 
-module.exports = app
+module.exports = app;

@@ -53,6 +53,16 @@ describe('/textContent', () => {
       expect(response.status).toBe(200);
       expect(JSON.parse(response.text)).toEqual(textDetail);
     });
+
+    test('存在しないidへのリクエストがあった時ステータスコード400が返ってくる', async () => {
+      for (let i = 0; i < 3; i++) {
+        await prisma.text.create({
+          data: { title: `text${i}`, body: `text${i}:テストです` },
+        });
+      }
+      const response = await supertest(app).get('/textDetail/5');
+      expect(response.status).toBe(400);
+    });
   });
 
   describe('/POST createText', () => {
@@ -71,6 +81,13 @@ describe('/textContent', () => {
       const replacedIdRes = { ...jsonRes, id: 1 };
       expect(response.status).toBe(200);
       expect(replacedIdRes).toEqual(newText);
+    });
+    test('titleとbodyが存在しないしない時ステータスコード400が返ってくる', async () => {
+      const response = await supertest(app).post('/createText').send({
+        title: null,
+        body: null,
+      });
+      expect(response.status).toBe(400);
     });
   });
 
@@ -99,6 +116,22 @@ describe('/textContent', () => {
       expect(response.status).toBe(200);
       expect(JSON.parse(response.text)).toEqual(updatedText);
     });
+    test('存在しないidへのリクエストがあった時ステータスコード400が返ってくる', async () => {
+      for (let i = 0; i < 3; i++) {
+        await prisma.text.create({
+          data: { title: `text${i}`, body: `text${i}:テストです` },
+        });
+      }
+      const response = await supertest(app)
+        .put('/updateText/4')
+        .send({
+          data: {
+            title: '更新されたタイトル',
+            body: '更新されたテキストです。',
+          },
+        });
+      expect(response.status).toBe(400);
+    });
   });
 
   describe('/DELETE deleteText/:id', () => {
@@ -119,6 +152,17 @@ describe('/textContent', () => {
         });
       expect(response.status).toBe(200);
       expect(JSON.parse(response.text)).toEqual(deleteText);
+    });
+    test('存在しないidへのリクエストがあった時ステータスコード400が返ってくる', async () => {
+      await prisma.text.create({
+        data: { id: 1, title: 'テスト', body: `テストです` },
+      });
+      const response = await supertest(app)
+        .delete('/deleteText/4')
+        .send({
+          where: { id: 4 },
+        });
+      expect(response.status).toBe(400);
     });
   });
 });
