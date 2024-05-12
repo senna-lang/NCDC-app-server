@@ -36,6 +36,7 @@ app.get(
         },
         select: {
           title: true,
+          author: true,
           body: true,
         },
       });
@@ -49,13 +50,28 @@ app.get(
   }
 );
 
+app.get('/authorList', async (req: express.Request, res: express.Response) => {
+  try {
+    const authorList = await prisma.author.findMany();
+    if (!authorList) {
+      throw new Error();
+    }
+    return res.status(200).json(authorList);
+  } catch (e) {
+    return res.status(400).json(e);
+  }
+});
+
 app.post('/createText', async (req: express.Request, res: express.Response) => {
   try {
-    const { title, body } = req.body;
-    const newText: TextContent = await prisma.text.create({
+    const { title, body, authorId } = req.body;
+    const newText = await prisma.text.create({
       data: {
         title,
         body,
+        author: {
+          connect: { id: authorId },
+        },
       },
     });
     return res.status(200).json(newText);
@@ -63,6 +79,23 @@ app.post('/createText', async (req: express.Request, res: express.Response) => {
     return res.status(400).json(e);
   }
 });
+
+app.post(
+  '/createAuthor',
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { author } = req.body;
+      const newAuthor = await prisma.author.create({
+        data: {
+          name: author,
+        },
+      });
+      return res.status(200).json(newAuthor);
+    } catch (e) {
+      return res.status(400).json(e);
+    }
+  }
+);
 
 app.put(
   '/updateText/:id',

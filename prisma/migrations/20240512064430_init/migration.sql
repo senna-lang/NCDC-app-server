@@ -1,0 +1,14 @@
+-- CreateTable
+CREATE TABLE "Author" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Text" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "title" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
+    "authorId" INTEGER NOT NULL,
+    CONSTRAINT "Text_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "Author" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);

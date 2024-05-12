@@ -6,6 +6,6 @@ type TextContent = {
 
 type TextList = Pick<TextContent, 'id' | 'title'>;
 
-type TextDetail = Pick<TextContent, 'title' | 'body'> | null;
+type TextDetail = Pick<TextContent, 'title' | 'body' > | null;
 
 export { TextContent, TextDetail, TextList };
