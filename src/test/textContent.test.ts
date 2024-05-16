@@ -16,9 +16,20 @@ describe('/textContent', () => {
 
   describe('/GET allTexts', () => {
     test('すべてのテキストコンテンツの取得', async () => {
+      await prisma.author.create({
+        data: {
+          name: 'テスト',
+        },
+      });
       for (let i = 0; i < 3; i++) {
         await prisma.text.create({
-          data: { title: `text${i}`, body: `text${i}:テストです` },
+          data: {
+            title: `text${i}`,
+            body: `text${i}:テストです`,
+            author: {
+              connect: { id: 1 },
+            },
+          },
         });
       }
       const textList = await prisma.text.findMany({
@@ -35,9 +46,20 @@ describe('/textContent', () => {
 
   describe('/GET textDetail/:id', () => {
     test('テキストの詳細を取得', async () => {
+      await prisma.author.create({
+        data: {
+          name: 'テスト',
+        },
+      });
       for (let i = 0; i < 3; i++) {
         await prisma.text.create({
-          data: { title: `text${i}`, body: `text${i}:テストです` },
+          data: {
+            title: `text${i}`,
+            body: `text${i}:テストです`,
+            author: {
+              connect: { id: 1 },
+            },
+          },
         });
       }
       const textDetail = await prisma.text.findUnique({
@@ -47,6 +69,7 @@ describe('/textContent', () => {
         select: {
           title: true,
           body: true,
+          author: true,
         },
       });
       const response = await supertest(app).get('/textDetail/1');
@@ -55,9 +78,20 @@ describe('/textContent', () => {
     });
 
     test('存在しないidへのリクエストがあった時ステータスコード400が返ってくる', async () => {
+      await prisma.author.create({
+        data: {
+          name: 'テスト',
+        },
+      });
       for (let i = 0; i < 3; i++) {
         await prisma.text.create({
-          data: { title: `text${i}`, body: `text${i}:テストです` },
+          data: {
+            title: `text${i}`,
+            body: `text${i}:テストです`,
+            author: {
+              connect: { id: 1 },
+            },
+          },
         });
       }
       const response = await supertest(app).get('/textDetail/5');
@@ -67,15 +101,24 @@ describe('/textContent', () => {
 
   describe('/POST createText', () => {
     test('新規テキスト作成', async () => {
+      await prisma.author.create({
+        data: {
+          name: 'テスト',
+        },
+      });
       const newText = await prisma.text.create({
         data: {
           title: 'テスト',
           body: 'テストです。',
+          author: {
+            connect: { id: 1 },
+          },
         },
       });
       const response = await supertest(app).post('/createText').send({
         title: 'テスト',
         body: 'テストです。',
+        authorId: 1,
       });
       const jsonRes = JSON.parse(response.text);
       const replacedIdRes = { ...jsonRes, id: 1 };
@@ -93,9 +136,20 @@ describe('/textContent', () => {
 
   describe('/PUT updateText/:id', () => {
     test('テキストの更新', async () => {
+      await prisma.author.create({
+        data: {
+          name: 'テスト',
+        },
+      });
       for (let i = 0; i < 3; i++) {
         await prisma.text.create({
-          data: { title: `text${i}`, body: `text${i}:テストです` },
+          data: {
+            title: `text${i}`,
+            body: `text${i}:テストです`,
+            author: {
+              connect: { id: 1 },
+            },
+          },
         });
       }
       const updatedText = await prisma.text.update({
@@ -117,9 +171,20 @@ describe('/textContent', () => {
       expect(JSON.parse(response.text)).toEqual(updatedText);
     });
     test('存在しないidへのリクエストがあった時ステータスコード400が返ってくる', async () => {
+      await prisma.author.create({
+        data: {
+          name: 'テスト',
+        },
+      });
       for (let i = 0; i < 3; i++) {
         await prisma.text.create({
-          data: { title: `text${i}`, body: `text${i}:テストです` },
+          data: {
+            title: `text${i}`,
+            body: `text${i}:テストです`,
+            author: {
+              connect: { id: 1 },
+            },
+          },
         });
       }
       const response = await supertest(app)
@@ -136,14 +201,31 @@ describe('/textContent', () => {
 
   describe('/DELETE deleteText/:id', () => {
     test('テキストの削除', async () => {
+      await prisma.author.create({
+        data: {
+          name: 'テスト',
+        },
+      });
       await prisma.text.create({
-        data: { id: 1, title: 'テスト', body: `テストです` },
+        data: {
+          title: 'テスト',
+          body: `テストです`,
+          author: {
+            connect: { id: 1 },
+          },
+        },
       });
       const deleteText = await prisma.text.delete({
         where: { id: 1 },
       });
       await prisma.text.create({
-        data: { id: 1, title: 'テスト', body: `テストです` },
+        data: {
+          title: 'テスト',
+          body: `テストです`,
+          author: {
+            connect: { id: 1 },
+          },
+        },
       });
       const response = await supertest(app)
         .delete('/deleteText/1')
@@ -153,10 +235,9 @@ describe('/textContent', () => {
       expect(response.status).toBe(200);
       expect(JSON.parse(response.text)).toEqual(deleteText);
     });
+    
+
     test('存在しないidへのリクエストがあった時ステータスコード400が返ってくる', async () => {
-      await prisma.text.create({
-        data: { id: 1, title: 'テスト', body: `テストです` },
-      });
       const response = await supertest(app)
         .delete('/deleteText/4')
         .send({

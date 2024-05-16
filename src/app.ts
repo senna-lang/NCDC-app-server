@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import express from 'express';
 import { Express } from 'express';
-import { TextContent, TextDetail, TextList } from './types';
+import { Author, TextContent, TextDetail, TextList } from './types';
 import cors from 'cors';
 
 const app: Express = express();
@@ -30,7 +30,7 @@ app.get(
   async (req: express.Request, res: express.Response) => {
     try {
       const id = Number(req.params.id);
-      const textDetail: TextDetail = await prisma.text.findUnique({
+      const textDetail:TextDetail = await prisma.text.findUnique({
         where: {
           id,
         },
@@ -52,7 +52,7 @@ app.get(
 
 app.get('/authorList', async (req: express.Request, res: express.Response) => {
   try {
-    const authorList = await prisma.author.findMany();
+    const authorList:Author[] = await prisma.author.findMany();
     if (!authorList) {
       throw new Error();
     }
@@ -103,7 +103,7 @@ app.put(
     try {
       const id = Number(req.params.id);
       const { title, body } = req.body;
-      const updatedText: TextContent = await prisma.text.update({
+      const updatedText = await prisma.text.update({
         where: { id },
         data: {
           title,
@@ -122,7 +122,7 @@ app.delete(
   async (req: express.Request, res: express.Response) => {
     try {
       const id = Number(req.params.id);
-      const deleteText: TextContent = await prisma.text.delete({
+      const deleteText = await prisma.text.delete({
         where: { id },
       });
       return res.status(200).json(deleteText);
