@@ -30,7 +30,7 @@ app.get(
   async (req: express.Request, res: express.Response) => {
     try {
       const id = Number(req.params.id);
-      const textDetail:TextDetail = await prisma.text.findUnique({
+      const textDetail: TextDetail = await prisma.text.findUnique({
         where: {
           id,
         },
@@ -52,7 +52,7 @@ app.get(
 
 app.get('/authorList', async (req: express.Request, res: express.Response) => {
   try {
-    const authorList:Author[] = await prisma.author.findMany();
+    const authorList: Author[] = await prisma.author.findMany();
     if (!authorList) {
       throw new Error();
     }
@@ -126,6 +126,25 @@ app.delete(
         where: { id },
       });
       return res.status(200).json(deleteText);
+    } catch (e) {
+      return res.status(400).json(e);
+    }
+  }
+);
+
+app.delete(
+  '/deleteAuthor/:id',
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const id = Number(req.params.id);
+      const deleteText = prisma.text.deleteMany({
+        where: { authorId: id },
+      });
+      const deleteAuthor = prisma.author.delete({
+        where: { id },
+      });
+      const transaction = await prisma.$transaction([deleteText, deleteAuthor]);
+      return res.status(200).json(transaction);
     } catch (e) {
       return res.status(400).json(e);
     }
